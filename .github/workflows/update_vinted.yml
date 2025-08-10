@@ -1,0 +1,34 @@
+name: Update Vinted CSV
+
+on:
+  schedule:
+    - cron: "0 6 * * *"  # Kører hver dag kl. 06:00 UTC
+  workflow_dispatch:      # Mulighed for manuel kørsel
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4 pandas
+
+      - name: Run scraper
+        run: |
+          python scripts/scrape_vinted.py
+
+      - name: Commit and push CSV
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add vinted_export.csv
+          git commit -m "Auto-update Vinted CSV"
+          git push
